@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "de-lightful-deblur"
+version = "0.1.0"
+description = "A tool for light streak detection and deblurring."
+authors = ["redhotchili0909 <cpark1@olin.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+opencv-python = "^4.10.0.84"
+matplotlib = "^3.9.2"
+scikit-image = "^0.24.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.0"
+black = "^23.9.1"
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
