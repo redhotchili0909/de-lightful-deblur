@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 
-def detect(image, output_subdir, clip_limit=2.0, threshold_value=200, min_contour_area=200, min_brightness=150):
+def detect(image, output_subdir, clip_limit=2.0, threshold_value=130, min_contour_area=80, min_brightness=150):
     """
     Detects and numbers bright, thick light streaks in an image, saving each streak's close-up image.
 
