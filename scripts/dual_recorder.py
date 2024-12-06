@@ -4,7 +4,7 @@ from picamera2 import Picamera2, Preview
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
 
-resolution = (1920,1080)
+resolution = (720,576)
 
 camera_a_framerate = 10
 camera_b_framerate = 100
