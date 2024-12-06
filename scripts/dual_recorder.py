@@ -1,4 +1,5 @@
 import time
+import argparse
 from pathlib import Path
 from picamera2 import Picamera2, Preview
 from picamera2.encoders import H264Encoder
@@ -12,13 +13,19 @@ CAM_B_FRAMERATE = 100
 
 VID_DURATION = 10 # in seconds
 
+# initialize argument parser
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", action='store_true', help = "Save videos to mp4")
+parser.parse_args()
+args = parser.parse_args()
+
 camera_a = Picamera2(0)
-config_a = camera_a.create_video_configuration(main={"size":CAM_A_FRAMERATE})
+config_a = camera_a.create_video_configuration(main={"size":CAM_A_RESOLUTION})
 camera_a.configure(config_a)
 camera_a.start_preview(Preview.QTGL, x=100,y=300,width=400,height=300)
 
 camera_b = Picamera2(1)
-config_b = camera_b.create_video_configuration(main={"size":CAM_B_FRAMERATE})
+config_b = camera_b.create_video_configuration(main={"size":CAM_B_RESOLUTION})
 camera_b.configure(config_b)
 camera_b.start_preview(Preview.QT, x=500,y=300,width=400,height=300)
 
@@ -31,11 +38,12 @@ camera_b.start()
 
 time.sleep(2)
 
-encodera = H264Encoder(1000000)
-encoderb = H264Encoder(1000000)
+if args.s:
+    encodera = H264Encoder(1000000)
+    encoderb = H264Encoder(1000000)
 
-output_a = FfmpegOutput('camera_a.mp4')
-output_b = FfmpegOutput('camera_b.mp4')
+    output_a = FfmpegOutput('camera_a.mp4')
+    output_b = FfmpegOutput('camera_b.mp4')
 
 camera_a.start_recording(encodera,output_a)
 camera_b.start_recording(encoderb,output_b)
