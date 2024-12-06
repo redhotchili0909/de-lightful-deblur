@@ -6,8 +6,15 @@ from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
 
 # initialize argument parser
-parser = argparse.ArgumentParser()
-parser.add_argument("-t", action='store_true', help = "Run in test mode (won't save videos)")
+parser = argparse.ArgumentParser(
+    description="Handles video recording settings;" + 
+    "cam a is high rez low fps, cam b is high fps low rez"
+    )
+parser.add_argument(
+    "-t", 
+    action='store_true', 
+    help = "Run in test mode (won't save videos)"
+    )
 parser.add_argument(
     "-f", 
     type=str, 
@@ -25,8 +32,8 @@ parser.add_argument(
 parser.parse_args()
 args = parser.parse_args()
 
-CAM_A_RESOLUTION = (1920, 1080)
-CAM_B_RESOLUTION = (720, 480)
+CAM_A_RESOLUTION = (1920, 1280)
+CAM_B_RESOLUTION = (640, 480)
 
 CAM_A_FRAMERATE = 10
 CAM_B_FRAMERATE = 100
@@ -56,10 +63,10 @@ time.sleep(2)
 if args.t:
     time.sleep(VID_DURATION)
 else:
-    encodera = H264Encoder(1000000)
-    encoderb = H264Encoder(1000000)
+    encodera = H264Encoder(4000000) # higher bitrate to accomodate higher res
+    encoderb = H264Encoder(2000000) # moderate bitrate to accomodate higher fps
 
-    output_a = FfmpegOutput(f"{args.f}_a.mp4")
+    output_a = FfmpegOutput(f"{args.f}_a.mp4") 
     output_b = FfmpegOutput(f"{args.f}_b.mp4")
 
     camera_a.start_recording(encodera,output_a)
