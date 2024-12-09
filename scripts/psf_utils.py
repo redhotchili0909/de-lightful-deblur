@@ -79,7 +79,7 @@ def smooth_motion_vectors(motion_vectors, sigma=1.0):
     return list(zip(smoothed_dx, smoothed_dy))
 
 
-def plot_motion_path(motion_vectors):
+def plot_motion_path(motion_vectors, save_path = None):
     """
     Plot the motion path from motion vectors.
 
@@ -88,7 +88,6 @@ def plot_motion_path(motion_vectors):
     """
     dx = [vec[0] for vec in motion_vectors]
     dy = [vec[1] for vec in motion_vectors]
-
     x_path = np.cumsum(dx)
     y_path = np.cumsum(dy)
 
@@ -99,14 +98,21 @@ def plot_motion_path(motion_vectors):
     plt.title('Motion Path Visualization')
     plt.legend()
     plt.grid(True)
-    plt.show()
 
+    if save_path:
+        plt.savefig(save_path, dpi=300)
+    else:
+        plt.show()
 
-def visualize_psf(psf):
+def visualize_psf(psf, save_path = None):
     """
     Visualize a PSF as a heatmap.
     """
+    plt.figure()
     plt.imshow(psf, cmap='gray', interpolation='nearest')
     plt.colorbar()
     plt.title("Point Spread Function (PSF)")
-    plt.show()
+    if save_path:
+        plt.savefig(save_path, dpi=300)
+    else:
+        plt.show()

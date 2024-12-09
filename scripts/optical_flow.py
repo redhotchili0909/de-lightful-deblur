@@ -7,29 +7,48 @@ from skimage.restoration import richardson_lucy
 
 video_path = "assets/vids/op_flow_test1.h264"
 image_path = "assets/imgs/op_flow_test1.jpg"
-output_path = "assets/output"
 
-# Step 1: Optional - Visualize optical flow
+
+# Step 1: Visualize and save optical flow
 center_weight = 0.2
 print("Visualizing optical flow...")
-visualize_optical_flow(video_path,center_weight=center_weight)
+optical_flow_image = visualize_optical_flow(video_path, center_weight=center_weight, save_frame=True)
+
+vid_name = os.path.basename(video_path)
+vid_base_name, _ = os.path.splitext(vid_name)
+
+output_path = f"assets/output/{vid_base_name}"
+
+os.makedirs(output_path, exist_ok=True)
+
+optical_flow_filename = f"{output_path}/{vid_base_name}_of.jpg"
+
+cv.imwrite(optical_flow_filename, optical_flow_image)
+print(f"Optical flow visualization saved as: {optical_flow_filename}")
 
 # Step 2: Extract and smooth motion vectors
 print("Extracting motion vectors...")
-motion_vectors = extract_motion_vectors(video_path,center_weight=center_weight)
+motion_vectors = extract_motion_vectors(video_path, center_weight=center_weight)
 print("Smoothing motion vectors...")
 smoothed_motion_vectors = smooth_motion_vectors(motion_vectors)
-# plot_motion_path(smoothed_motion_vectors)
+
+# Save motion vector path plot
+smooth_motion_path_filename = f"{output_path}/{vid_base_name}_smooth_motion.jpg"
+
+plot_motion_path(smoothed_motion_vectors, save_path=smooth_motion_path_filename)
+print(f"Motion path plot saved as: {smooth_motion_path_filename}")
 
 # Step 3: Dynamically determine PSF size based on video resolution
 print("Determining PSF size...")
 psf_size = determine_kernel_size(video_path, scale=0.01, min_size=15, max_size=50)
 print(f"PSF size determined: {psf_size}")
 
-# Step 4: Calculate the PSF
+# Step 4: Calculate and save the PSF
 print("Calculating PSF...")
-psf = calculate_psf(smoothed_motion_vectors, psf_size=psf_size, use_interpolation=False, num_samples=100, no_vert=False)
-visualize_psf(psf)
+psf = calculate_psf(smoothed_motion_vectors, psf_size=psf_size, use_interpolation=True, num_samples=100, no_vert=False)
+psf_filename = f"{output_path}/{vid_base_name}_psf.jpg"
+visualize_psf(psf, save_path=psf_filename)
+print(f"PSF heatmap saved as: {psf_filename}")
 
 # Step 5: Load the input image
 print("Loading input image...")
@@ -50,10 +69,6 @@ deblurred = np.clip(deblurred * 255.0, 0, 255).astype(np.uint8)
 # Step 7: Save results with dynamic filenames
 image_name = os.path.basename(image_path)
 image_base_name, _ = os.path.splitext(image_name)
-deblurred_filename = f"{image_base_name}_deblurred.jpg"
-
-# Ensure output directory exists
-os.makedirs(output_path, exist_ok=True)
-cv.imwrite(f"{output_path}/{deblurred_filename}", deblurred)
-
-print(f"Deblurred image saved as: {output_path}/{deblurred_filename}")
+deblurred_filename = f"{output_path}/{image_base_name}_deblurred.jpg"
+cv.imwrite(deblurred_filename, deblurred)
+print(f"Deblurred image saved as: {deblurred_filename}")

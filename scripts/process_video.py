@@ -95,13 +95,17 @@ def determine_kernel_size(video_path, scale=0.02, min_size=15, max_size=101):
     psf_size = max(min_size, min(psf_size | 1, max_size))
     return psf_size
 
-def visualize_optical_flow(video_path, center_weight=0.2):
+def visualize_optical_flow(video_path, center_weight=0.2, save_frame=False):
     """
     Visualize optical flow, prioritizing objects in the center of the video.
 
     Parameters:
         video_path (str): Path to the video file.
         center_weight (float): Fraction of the image dimensions to prioritize central features.
+        save_frame (bool): Whether to save the final frame as an image.
+
+    Returns:
+        final_frame (numpy.ndarray): The last processed frame with optical flow visualization (if save_frame=True).
     """
     cap = cv.VideoCapture(video_path)
     feature_params = dict(maxCorners=100, qualityLevel=0.3, minDistance=7, blockSize=7)
@@ -112,6 +116,7 @@ def visualize_optical_flow(video_path, center_weight=0.2):
     if not ret:
         raise ValueError("Error reading video.")
 
+    # Dimensions for center prioritization
     height, width = old_frame.shape[:2]
     center_x, center_y = width // 2, height // 2
     max_dist_x = center_weight * width
@@ -132,6 +137,8 @@ def visualize_optical_flow(video_path, center_weight=0.2):
     mask = np.zeros_like(old_frame)
     color = np.random.randint(0, 255, (100, 3))
 
+    final_frame = None  # Store the last processed frame
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -148,13 +155,17 @@ def visualize_optical_flow(video_path, center_weight=0.2):
                 mask = cv.line(mask, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
                 frame = cv.circle(frame, (int(a), int(b)), 5, color[i].tolist(), -1)
             img = cv.add(frame, mask)
+            final_frame = img  # Update the final frame with visualization
             cv.imshow('Optical Flow', img)
 
         old_gray = frame_gray.copy()
         p0 = good_new.reshape(-1, 1, 2)
 
-        if cv.waitKey(30) & 0xFF == 27:
+        if cv.waitKey(30) & 0xFF == 27:  # Exit on ESC key
             break
 
     cap.release()
     cv.destroyAllWindows()
+
+    if save_frame:
+        return final_frame
