@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from pprint import pprint
+import matplotlib.pyplot as plt
 
 # Load the video
 video_path = "assets/vids/output_video.mp4"
@@ -15,7 +16,8 @@ while cap.isOpened():
         break
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    corners, ids, _ = cv2.aruco.ArucoDetector(aruco_dict, parameters).detectMarkers(gray)
+    aruco_detector = cv2.aruco.ArucoDetector(aruco_dict, parameters)
+    corners, ids, _ = aruco_detector.detectMarkers(gray)
 
     if ids is not None and len(ids) == 1:
         # pixel coords of the single detected marker
@@ -41,5 +43,17 @@ while cap.isOpened():
         break
 
 pprint(positions)
-cap.release()
-cv2.destroyAllWindows()
+# Extract X and Y coordinates
+x_positions = np.array(positions)[:, 0]
+y_positions = np.array(positions)[:, 1]
+
+# Plotting the positions on an XY plane
+plt.scatter(x_positions, y_positions, c='green', label='Marker Centers')
+plt.xlabel('X Coordinates')
+plt.ylabel('Y Coordinates')
+plt.title('Positions of Detected ArUco Markers')
+plt.legend()
+plt.show()
+np.save('positions.npy', positions)
+# cap.release()
+# cv2.destroyAllWindows()
