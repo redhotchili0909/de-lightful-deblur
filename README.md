@@ -1,139 +1,98 @@
-# De-Lightful-Deblur
+# De-Lightful Deblur
 
-A Python tool for detecting light streaks in images to be used for deblurring imgaes. This repository provides both a GUI application for manual selection and processing of images, as well as a script for batch processing images in a folder.
+This project implements a motion deblurring pipeline based on techniques outlined in [*Motion Deblurring Using Motion Vectors*](https://ieeexplore.ieee.org/abstract/document/1288519). The pipeline processes video frames to extract motion paths, estimate a Point Spread Function (PSF), and restore motion-blurred images using Richardson-Lucy and Wiener deconvolution methods.
 
 ## Table of Contents
 
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Running the GUI Application](#running-the-gui-application)
-  - [Batch Processing Images](#batch-processing-images)
-- [License](#license)
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Pipeline Overview](#pipeline-overview)
+4. [Installation](#installation)
+5. [Usage](#usage)
+6. [Results](#results)
+7. [References](#references)
+
+## Introduction
+
+Motion blur occurs when a camera or subject moves during exposure, resulting in smeared or distorted images. This project implements a motion deblurring method that leverages motion vectors extracted from video sequences to estimate the PSF, which is then used to restore sharp images.
+
+### Referenced Paper
+
+The methods are inspired by *Motion Deblurring Using Motion Vectors*, which provides a comprehensive approach to reconstructing images degraded by motion blur. Our implementation adapts and extends the paper's principles to enable practical, automated deblurring.
 
 ## Features
 
-- **Streak Detection**: Detects bright, thick light streaks in images using image processing techniques.
-- **Manual Selection GUI**: Allows users to manually select regions of interest in an image for processing.
-- **Batch Processing**: Automatically processes all images in a specified folder.
-- **Result Visualization**: Outputs images with detected streaks outlined and numbered, along with zoomed-in images of each streak.
-- **Adjustable Parameters**: Users can adjust detection parameters like contrast enhancement, threshold values, and contour area.
+- Extracts motion paths from video using **optical flow**.
+- Dynamically estimates the kernel size for PSF calculation.
+- Calculates the PSF using motion vector interpolation.
+- Implements two deblurring methods:
+  - Richardson-Lucy deconvolution.
+  - Wiener deconvolution.
+- Supports user-defined regions of interest (ROI) for localized motion analysis.
+- Provides visualization of:
+  - Optical flow paths.
+  - Smoothed motion vector paths.
+  - Calculated PSF heatmap.
 
-## Prerequisites
+## Pipeline Overview
 
-- Python 3.12 or higher
-- [Poetry](https://python-poetry.org/docs/#installation) package manager
+1. **ROI Selection**: Manually select a region of interest to prioritize specific motion areas.
+2. **Optical Flow Visualization**: Visualize motion paths extracted using optical flow.
+3. **Motion Vector Extraction**: Calculate individual or global motion paths.
+4. **PSF Estimation**: Generate the PSF based on extracted motion vectors.
+5. **Deblurring**: Restore the blurred image using the Richardson-Lucy and Wiener methods.
 
 ## Installation
 
-Follow these steps to set up the project on your local machine:
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/your-repo/de-lightful-deblur.git
+   cd de-lightful-deblur
+   ```
 
-### 1. Clone the Repository
+2. Set up a Python virtual environment:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # For Windows, use venv\Scripts\activate
+   ```
 
-```bash
-git clone https://github.com/your-username/de-lightful-deblur.git
-cd de-lightful-deblur
-```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 2. Install Poetry
-
-If you haven't installed Poetry yet, you can do so by following the [official installation guide](https://python-poetry.org/docs/#installation).
-
-### 3. Install Dependencies
-
-Use Poetry to install all the project dependencies:
-
-```bash
-poetry install
-```
-
-This command will create a virtual environment and install all the packages listed in `pyproject.toml`.
-
-### 4. Activate the Virtual Environment
-
-To activate the virtual environment created by Poetry, run:
-
-```bash
-poetry shell
-```
+4. Install OpenCV with GUI support (if needed):
+   ```bash
+   pip install opencv-python-headless
+   ```
 
 ## Usage
 
-### Running the GUI Application
-
-The GUI application allows you to manually select regions in an image and run streak detection on them.
-
-#### Steps:
-
-1. **Launch the Application**
-
+1. **Run the pipeline**:
    ```bash
-   python gui.py
+   python scripts/optical_flow.py
    ```
 
-2. **Load an Image**
+2. **Select ROI**:
+   - When prompted, manually select the region of interest in the first video frame.
 
-   - Click on the **"Load Image"** button.
-   - Select the image file you want to process (supported formats: `.png`, `.jpg`, `.jpeg`).
+3. **Input Paths**:
+   - Modify `video_path` and `image_path` variables in `optical_flow.py` to point to your assets.
 
-3. **Select a Region**
+4. **Output**:
+   - The results, including optical flow visualization, motion path plots, PSF heatmaps, and deblurred images, will be saved in the `assets/output/` directory.
 
-   - Click and drag on the image to draw a rectangle around the region you want to process.
+## Results
 
-4. **Run Streak Detection**
+The pipeline generates the following outputs:
+- **Optical Flow Visualization**: Tracks motion paths from the selected ROI.
+- **PSF Heatmap**: Represents the motion path used for deblurring.
+- **Deblurred Images**:
+  - Richardson-Lucy deblurred image.
+  - Wiener deblurred image.
 
-   - Click on the **"Run Streak Detection"** button.
-   - The selected region will be processed, and the results will be displayed on the image.
-   - A message indicating that the image has been saved will appear above the image display.
+## References
 
-5. **Reset Selection**
-
-   - To revert back to the original image or make a new selection, click on the **"Go Back to Selection"** button.
-
-### Batch Processing Images
-
-You can process all images in a specified folder using the batch processing script.
-
-#### Steps:
-
-1. **Place Images in the Input Folder**
-
-   - By default, the script looks for images in the `assets` folder. Place your images there or specify a different folder.
-
-2. **Run the Batch Processing Script**
-
-   ```bash
-   python streak_detect.py
-   ```
-
-   - The script will process all images in the input folder and save the results in the `auto_select` output folder.
-
-3. **Adjusting Parameters (Optional)**
-
-   - You can adjust detection parameters by modifying the `process_all_images` function in `streak_detect.py`.
-
-   ```python
-   process_all_images(
-       input_folder="assets",
-       output_folder="auto_select",
-       clip_limit=2.0,
-       threshold_value=130,
-       min_contour_area=80,
-       min_brightness=150
-   )
-   ```
-
-## Dependencies
-
-The project uses the following Python packages:
-
-- **OpenCV-Python**: Computer vision library for image processing.
-- **NumPy**: Library for numerical computations.
-- **PyQt5**: GUI toolkit for the GUI application.
-
-All dependencies are listed in the `pyproject.toml` file and will be installed via Poetry.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- *Motion Deblurring Using Motion Vectors*, [Author(s)], [Journal/Conference], [Year].  
+- OpenCV documentation: https://docs.opencv.org  
+- scikit-image documentation: https://scikit-image.org/docs/stable/  

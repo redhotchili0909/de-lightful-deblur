@@ -75,7 +75,7 @@ image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 print("Deblurring the image using Richardson-Lucy...")
 blurred_normalized = image / 255.0
 psf /= np.sum(psf)
-deblurred_rl = richardson_lucy(blurred_normalized, psf, num_iter=10)
+deblurred_rl = richardson_lucy(blurred_normalized, psf, num_iter=30)
 deblurred_rl = np.clip(deblurred_rl * 255.0, 0, 255).astype(np.uint8)
 
 # Step 6b: Deblur the image using Wiener
