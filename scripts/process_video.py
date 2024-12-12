@@ -227,22 +227,3 @@ def determine_kernel_size(video_path, scale=0.02, min_size=15, max_size=101):
     psf_size = int(scale * max_dim)
     psf_size = max(min_size, min(psf_size | 1, max_size))
     return psf_size
-
-def map_deblurred_to_color(original_color, deblurred_gray):
-    """
-    Map a grayscale deblurred image back to the color channels of the original image.
-    
-    Parameters:
-        original_color (numpy.ndarray): Original color image.
-        deblurred_gray (numpy.ndarray): Grayscale deblurred image.
-    
-    Returns:
-        numpy.ndarray: Color image with the deblurred grayscale applied to all channels.
-    """
-    color_channels = []
-    for i in range(3):
-        color_channel = cv.normalize(
-            deblurred_gray, None, 0, original_color[:, :, i].max(), cv.NORM_MINMAX
-        )
-        color_channels.append(color_channel)
-    return cv.merge(color_channels)

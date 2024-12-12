@@ -13,7 +13,7 @@ def calculate_psf(motion_vectors, psf_size, use_interpolation=False, num_samples
         psf_size (int): Size of the PSF kernel (must be odd).
         use_interpolation (bool): Whether to interpolate the motion path.
         num_samples (int): Number of interpolation points (if using interpolation).
-        no_vert (bool): Whether to zero out verical motion
+        no_vert (bool): Whether to zero out vertical motion
 
     Returns:
         psf (numpy.ndarray): A 2D PSF kernel normalized to sum to 1.
